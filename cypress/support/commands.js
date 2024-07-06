@@ -115,10 +115,23 @@ Cypress.Commands.add("addProduto", () => {
   addProduto();
 });
 
+Cypress.Commands.add("detalhePedido", () => {
+  const detalhePedido = () => {
+    cy.get(
+      "[href='https://magento2-demo.magebit.com/sales/order/view/order_id/13/']"
+    ).click();
+  };
+  detalhePedido();
+});
+
 Cypress.Commands.add("logout", () => {
   const logout = () => {
-    cy.get("[tabindex='-1'][type='button']").click();
-    cy.get(selectorsList.logoutButton).click();
+    cy.get(
+      ":nth-child(2) > .customer-welcome > .customer-name > .action"
+    ).click();
+    cy.get(
+      ":nth-child(2) > .customer-welcome > .customer-menu > .header > .authorization-link > a"
+    ).click({ force: true });
   };
 
   logout();
@@ -126,13 +139,24 @@ Cypress.Commands.add("logout", () => {
 
 Cypress.Commands.add("buscaProduto", () => {
   const buscaProduto = () => {
+    cy.get(selectorsList.campoBusca).type("elisa{enter}");
+    cy.get(
+      ".product-item-link[href='https://magento2-demo.magebit.com/elisa-evercool-trade-tee.html']"
+    ).click({ multiple: true });
     cy.get(selectorsList.campoBusca).type("argus{enter}");
-    cy.get("#option-label-size-157-item-171").click();
-    cy.get("#option-label-color-93-item-52").click();
-    cy.get(selectorsList.buttonSubimit).eq(3).click();
-    cy.get(selectorsList.campoBusca).clear().type("hero{enter}");
-    cy.get("#option-label-size-157-item-172").click();
-    cy.get("#option-label-color-93-item-49").click();
+    cy.get(
+      ".product-item-link[href='https://magento2-demo.magebit.com/argus-all-weather-tank.html']"
+    ).click({ multiple: true });
   };
   buscaProduto();
+});
+
+Cypress.Commands.add("checkout", () => {
+  const checkout = () => {
+    cy.get("[title='Proceed to Checkout'][type='button']").click();
+    cy.get(selectorsList.buttonSubimit).click();
+    cy.wait(1000);
+    cy.get(selectorsList.buttonSubimit).click();
+  };
+  checkout();
 });

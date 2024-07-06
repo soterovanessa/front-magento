@@ -6,5 +6,6 @@ describe("Magento Testes", () => {
 
   it("Buscar por um  Produto", () => {
     cy.buscaProduto();
+    cy.checkout();
   });
 });

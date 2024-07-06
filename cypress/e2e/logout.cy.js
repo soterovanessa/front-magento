@@ -8,7 +8,7 @@ describe("Magento Teste", () => {
     cy.logout();
     cy.url().should(
       "be.equal",
-      `${Cypress.config("baseUrl")}/customer/account/logoutSuccess/`
+      `${Cypress.config("baseUrl")}customer/account/logoutSuccess/`
     );
   });
 });

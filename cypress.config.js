@@ -10,7 +10,7 @@ module.exports = defineConfig({
   },
 
   env: {
-    user_first_name: "Teste",
+    user_first_name: "Vanessa",
     user_last_name: "Testando",
     user_email: "teste123@teste.com",
     user_password: "floresta123*",

@@ -19,6 +19,15 @@ export const selectorsList = {
   loginEmail: "[name='login[username]'][type='email']",
   loginPassword: "[name='login[password]']",
   buttonSubimit: "[type='submit']",
+  company: "[name='company']",
+  streetAddress: "[name='street[0]'][type='text']",
+  streetAddress1: "[name='street[1]'][type='text']",
+  city: "[name='city']",
+  zip: "[name='postcode']",
+  phone: "[name='telephone']",
+  logoutButton:
+    "[href='https://magento2-demo.magebit.com/customer/account/logout/']",
+  campoBusca: "[name='q']",
 };
 
 Cypress.Commands.add("create", () => {
@@ -33,6 +42,7 @@ Cypress.Commands.add("create", () => {
       log: false,
     });
     cy.get(selectorsList.buttonCreate).click({ force: true });
+    cy.get("body").contains("My Account");
   };
   create();
 });
@@ -41,22 +51,88 @@ Cypress.Commands.add(
   "login",
   (
     user_email = Cypress.env("user_email"),
-    user_password = Cypress.env("user_password")
+    user_password = Cypress.env("user_password"),
+    { cacheSession = false } = {}
   ) => {
     const login = () => {
       cy.visit("customer/account/login/");
 
-      cy.get('iframe[src*="captcha"]').then(($iframe) => {
-        const $body = $iframe.contents().find("body");
-        cy.wrap($body).find('input[type="checkbox"]').uncheck();
-      });
-
       cy.get(selectorsList.loginEmail).type(user_email);
-      cy.get(selectorsList.loginPassword).type(user_password);
+      cy.get(selectorsList.loginPassword).type(user_password, { log: false });
       cy.get(selectorsList.buttonSubimit).eq(1).click();
-      cy.wait(2000);
-      cy.get(".captcha.required").invoke("remove");
     };
-    login();
+    const options = {
+      cacheAcrossSpecs: true,
+    };
+
+    if (cacheSession) {
+      cy.session(user_email, login, options);
+    } else {
+      login();
+    }
   }
 );
+
+Cypress.Commands.add("addProduto", () => {
+  const addProduto = () => {
+    cy.visit("https://magento2-demo.magebit.com/");
+    cy.visit("/promotions/tees-all.html");
+    cy.visit("/juliana-short-sleeve-tee.html");
+    cy.get("#option-label-size-157-item-170").click();
+    cy.get("#option-label-color-93-item-60").click();
+    cy.get(selectorsList.buttonSubimit).eq(1).click({ force: true });
+    cy.visit("/promotions/tees-all.html");
+    cy.visit("/gabrielle-micro-sleeve-top.html");
+    cy.get("#option-label-size-157-item-172").click();
+    cy.get("#option-label-color-93-item-58").click();
+    cy.get(selectorsList.buttonSubimit).eq(1).click({ force: true });
+    cy.get(".showcart").click();
+    cy.get("[href='https://magento2-demo.magebit.com/checkout/cart/']")
+      .eq(2)
+      .click({
+        multiple: true,
+      });
+    cy.get("[title='Proceed to Checkout'][type='button']").click({
+      force: true,
+    });
+    cy.get(".checkout-methods-items > :nth-child(1) > .action > span").click();
+    cy.visit("/checkout/#shipping");
+    cy.get(selectorsList.company).type(chance.company());
+    cy.get(selectorsList.streetAddress).type(chance.address());
+    cy.get(selectorsList.streetAddress1).type(chance.province());
+    cy.get("[name='country_id']").select("Brazil");
+    cy.get("[name='region_id']").select("Pernambuco");
+    cy.get(selectorsList.city).type(chance.city());
+    cy.get(selectorsList.zip).type(chance.zip());
+    cy.get(selectorsList.phone).type(chance.phone());
+    cy.get("[type='radio'][value='flatrate_flatrate']").click();
+    cy.get(selectorsList.buttonSubimit).eq(2).click({ force: true });
+    cy.get(selectorsList.buttonSubimit).eq(1).click({ force: true });
+    cy.wait(1000);
+    cy.get(selectorsList.buttonSubimit).click({ force: true });
+    cy.get("body").should("Thank you for your purchase!");
+  };
+  addProduto();
+});
+
+Cypress.Commands.add("logout", () => {
+  const logout = () => {
+    cy.get("[tabindex='-1'][type='button']").click();
+    cy.get(selectorsList.logoutButton).click();
+  };
+
+  logout();
+});
+
+Cypress.Commands.add("buscaProduto", () => {
+  const buscaProduto = () => {
+    cy.get(selectorsList.campoBusca).type("argus{enter}");
+    cy.get("#option-label-size-157-item-171").click();
+    cy.get("#option-label-color-93-item-52").click();
+    cy.get(selectorsList.buttonSubimit).eq(3).click();
+    cy.get(selectorsList.campoBusca).clear().type("hero{enter}");
+    cy.get("#option-label-size-157-item-172").click();
+    cy.get("#option-label-color-93-item-49").click();
+  };
+  buscaProduto();
+});

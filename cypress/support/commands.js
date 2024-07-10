@@ -19,7 +19,7 @@ export const selectorsList = {
   loginEmail: "[name='login[username]'][type='email']",
   loginPassword: "[name='login[password]']",
   buttonSubimit: "[type='submit']",
-  company: "[name='company']",
+  company: "[name='company'][type='text']",
   streetAddress: "[name='street[0]'][type='text']",
   streetAddress1: "[name='street[1]'][type='text']",
   city: "[name='city']",
@@ -51,8 +51,7 @@ Cypress.Commands.add(
   "login",
   (
     user_email = Cypress.env("user_email"),
-    user_password = Cypress.env("user_password"),
-    { cacheSession = false } = {}
+    user_password = Cypress.env("user_password")
   ) => {
     const login = () => {
       cy.visit("customer/account/login/");
@@ -61,15 +60,7 @@ Cypress.Commands.add(
       cy.get(selectorsList.loginPassword).type(user_password, { log: false });
       cy.get(selectorsList.buttonSubimit).eq(1).click();
     };
-    const options = {
-      cacheAcrossSpecs: true,
-    };
-
-    if (cacheSession) {
-      cy.session(user_email, login, options);
-    } else {
-      login();
-    }
+    login();
   }
 );
 
@@ -97,6 +88,7 @@ Cypress.Commands.add("addProduto", () => {
     });
     cy.get(".checkout-methods-items > :nth-child(1) > .action > span").click();
     cy.visit("/checkout/#shipping");
+    cy.wait(3000);
     cy.get(selectorsList.company).type(chance.company());
     cy.get(selectorsList.streetAddress).type(chance.address());
     cy.get(selectorsList.streetAddress1).type(chance.province());
@@ -108,8 +100,8 @@ Cypress.Commands.add("addProduto", () => {
     cy.get("[type='radio'][value='flatrate_flatrate']").click();
     cy.get(selectorsList.buttonSubimit).eq(2).click({ force: true });
     cy.get(selectorsList.buttonSubimit).eq(1).click({ force: true });
-    cy.wait(1000);
-    cy.get(selectorsList.buttonSubimit).click({ force: true });
+    cy.wait(3000);
+    cy.get("[title='Place Order'][type='submit']").click({ force: true });
     cy.get("body").should("Thank you for your purchase!");
   };
   addProduto();
